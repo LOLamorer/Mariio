@@ -1,0 +1,233 @@
+import pygame
+
+# Constantes e Configurações
+WIDTH, HEIGHT = 600, 490
+VEL = 5
+JUMP_HEIGHT = 10
+OBSTACLE_VEL = 1
+OBSTACLE2_VEL = 0.17
+NUVEM_VEL = 0.17
+MOEDA4_VEL = 0.1
+MOEDA5_VEL = 0.1
+COGUMELO_VEL = 0.1
+FPS = 30
+
+
+# Inicialização do Pygame
+pygame.init()
+win = pygame.display.set_mode((WIDTH, HEIGHT))
+clock = pygame.time.Clock()
+
+# Carrega as imagens
+background = pygame.image.load("paisagem1.png")  # Substituí "background.jpg" por "intro.jpg"
+background = pygame.transform.scale(background, (2100, 530))
+boneco = pygame.image.load('paradoD.png')
+boneco = pygame.transform.scale(boneco, (70, 70))
+nuvem = pygame.image.load('nuvem.png')
+nuvem = pygame.transform.scale(nuvem, (400,200))
+collectible = pygame.image.load('coin2.png')
+collectible = pygame.transform.scale(collectible, (45, 45))
+collectible2 = pygame.image.load('coin2.png')
+collectible2 = pygame.transform.scale(collectible2, (45, 45))
+collectible3 = pygame.image.load('coin2.png')
+collectible3 = pygame.transform.scale(collectible3, (45, 45))
+collectible4 = pygame.image.load('coin2.png')
+collectible4 = pygame.transform.scale(collectible4, (45, 45))
+collectible5 = pygame.image.load('coin2.png')
+collectible5 = pygame.transform.scale(collectible5, (45, 45))
+obstacle = pygame.image.load('monstrinho.png')
+obstacle = pygame.transform.scale(obstacle, (70, 70))
+obstacle2 = pygame.image.load('monstrinho.png')
+obstacle2 = pygame.transform.scale(obstacle2, (100, 100))
+caixa = pygame.image.load('caixa.png')
+caixa = pygame.transform.scale(caixa,(70,60))
+cogumelo = pygame.image.load('CaixaCog.png')
+
+
+# Posições iniciais
+x, y = 50, 420
+caixaX, caixaY = 280, 260
+collectibleX, collectibleY = 80, 250
+collectible2X, collectible2Y = 150, 230
+collectible3X, collectible3Y = 220, 250
+collectible4X, collectible4Y = 600, 220
+collectible5X, collectible5Y = 700, 300
+obstacleX, obstacleY = 500, 440
+obstacle2X, obstacle2Y = 1000, 440
+nuvemX, nuvemY = 190, 50
+cogumeloX, cogumeloY = 280,200
+
+
+#Posições iniciais da camera
+camera_x = 0
+camera_y = 0
+
+# Variáveis de jogo
+jumping = False
+jumpHeight = JUMP_HEIGHT
+score = 0
+totalJumps = 0
+
+# Fonte
+font = pygame.font.Font(None, 36)
+
+def draw_score():
+    text = font.render(f'Pulos: {totalJumps}', True, (255, 255, 255))
+    win.blit(text, (350, 10))
+
+def game_over():
+    text = font.render('GAME OVER', True, (250, 250, 250))
+    win.blit(text, (200, 250))
+    pygame.display.update()
+    pygame.time.wait(2000)
+
+
+# Função para exibir uma imagem por um período de tempo
+def display_image_for_duration(image_path, duration):
+    image = pygame.image.load(image_path)
+    image = pygame.transform.scale(image, (WIDTH, HEIGHT))
+    win.blit(image, (0, 0))
+    pygame.display.update()
+    pygame.time.wait(int(duration * 1000))  # Converte a duração de segundos para milissegundos
+
+# Loop principal
+run = True
+while run:
+    clock.tick(FPS)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_LEFT]:
+        x -= VEL
+        direcao = 1
+        boneco = pygame.image.load('paradoE.png')
+        boneco = pygame.transform.scale(boneco, (78, 78))
+        
+    if keys[pygame.K_RIGHT]:
+        x += VEL
+        direcao = -1
+        boneco = pygame.image.load('paradoD.png')
+        boneco = pygame.transform.scale(boneco, (78, 78))
+
+
+    if not jumping:
+        if keys[pygame.K_UP]:
+            jumping = True
+            totalJumps += 1
+
+            if direcao == 1 :
+                boneco = pygame.image.load('andandoE.png')
+                boneco = pygame.transform.scale(boneco, (78, 78))
+
+            if direcao == -1 :
+                boneco = pygame.image.load('andandoD.png')
+                boneco = pygame.transform.scale(boneco, (78, 78))
+    
+    else:
+        if jumpHeight >= -JUMP_HEIGHT:
+            neg = 1
+            if jumpHeight < 0:
+                neg = -1
+            y -= (jumpHeight ** 2) * 0.5 * neg
+            jumpHeight -= 1
+
+        else:
+            jumping = False
+            jumpHeight = JUMP_HEIGHT
+
+            
+    nuvemX -= NUVEM_VEL
+    if nuvemX < -64:
+        nuvemX = WIDTH
+
+    obstacleX -= OBSTACLE_VEL
+    if obstacleX < -64:
+        obstacleX = WIDTH
+
+    obstacle2X -= OBSTACLE_VEL
+    if obstacle2X < -64:
+        obstacle2X = WIDTH
+
+
+    if x < caixaX < x + 64 and y < caixaY < y + 64:
+        score += 1
+        caixa = pygame.image.load('CaixaCog.png')
+        caixa = pygame.transform.scale(cogumelo, (70, 110))
+        cogumeloX, cogumeloY = 280,240
+
+
+    if x < cogumeloX < x + 64 and y < cogumeloY < y + 64:
+        score += 1
+        cogumelo = pygame.image.load('CaixaCog.png')
+        cogumelo = pygame.transform.scale(cogumelo, (0.1, 0.1))
+        pygame.time = 2000
+        boneco = pygame.transform.scale(boneco,(100,115))
+    
+
+
+    if x < collectibleX < x + 64 and y < collectibleY < y + 64:
+        score += 1
+        collectible = pygame.image.load('explosao.png')
+        collectible = pygame.transform.scale(collectible, (100, 150))
+
+    if x < collectible2X < x + 64 and y < collectible2Y < y + 64:
+        score += 1
+        collectible2 = pygame.image.load('explosao.png')
+        collectible2 = pygame.transform.scale(collectible2, (100, 150))
+
+    if x < collectible3X < x + 64 and y < collectible3Y < y + 64:
+        score += 1
+        collectible3 = pygame.image.load('explosao.png')
+        collectible3 = pygame.transform.scale(collectible3, (100, 150))
+
+    if x < collectible4X < x + 64 and y < collectible4Y < y + 64:
+        score += 1
+        collectible4 = pygame.image.load('explosao.png')
+        collectible4 = pygame.transform.scale(collectible4, (100, 150))
+
+    if x < collectible5X < x + 64 and y < collectible5Y < y + 64:
+        score += 1
+        collectible5 = pygame.image.load('explosao.png')
+        collectible5 = pygame.transform.scale(collectible5, (100, 150))
+       
+
+    if x < obstacleX < x + 64 and y < obstacleY < y + 64:
+        game_over()
+        run = False
+
+    if x < obstacle2X < x + 64 and y < obstacle2Y < y + 64:
+        game_over()
+        run = False
+
+
+    camera_y = y - HEIGHT // 2
+    camera_y = max(0, min(camera_y, 30))
+
+    collectible_y_screen = collectibleY - camera_y
+    obstacle_y_screen = obstacleY - camera_y
+
+    win.blit(background, (0 - camera_x, 0 - camera_y))  # Desenha o fundo primeiro
+    win.blit(caixa, (caixaX - camera_x, caixaY - camera_y))
+    win.blit(collectible, (collectibleX - camera_x, collectibleY - camera_y))
+    win.blit(collectible2, (collectible2X - camera_x, collectible2Y - camera_y))
+    win.blit(collectible3, (collectible3X - camera_x, collectible3Y - camera_y))
+    win.blit(collectible4, (collectible4X - camera_x, collectible4Y - camera_y))
+    win.blit(collectible5, (collectible5X - camera_x, collectible5Y - camera_y))
+    win.blit(obstacle, (obstacleX - camera_x, obstacleY - camera_y))
+    win.blit(obstacle2, (obstacle2X - camera_x, obstacle2Y - camera_y))
+    win.blit(boneco, (x - camera_x, y - camera_y))
+    win.blit(nuvem, (nuvemX - camera_x, nuvemY - camera_y))
+    
+
+    draw_score()
+
+    pygame.display.update()
+
+pygame.quit()
+
+print(f'Você coletou {score} objetos!')
+print(f'Você pulou {totalJumps} vezes!')
